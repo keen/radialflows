@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Sequences Sunburst</title>
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600">
+        <link rel="stylesheet" href="vendor/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="sequences.css"/>
+    </head>
+    <body>
+    <div class="container" id="flows">
+        <h1>User Flow Data</h1>
+        <div id="main">
+            <form id="event_collection">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="Type in the name of your event collection here and press 'Go'.">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">Go!</button>
+                  </span>
+                </div>
+            </form>
+            <br/>
+            <div id="sequence"></div>
+            <div id="chart">
+                <div id="explanation" style="visibility: hidden;">
+                    <span id="percentage"></span><br/>
+                    <span id="totalSize"></span><br/>
+                    begin with this sequence of pages
+                </div>
+            </div>
+        </div>
+        <div id="sidebar">
+          <input type="checkbox" id="togglelegend"> Legend<br/>
+          <div id="legend" style="visibility: hidden;"></div>
+        </div>
+    </div>
+    <script src="vendor/esprima.js"></script>
+    <script src="vendor/js-yaml.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="vendor/jquery.js"></script>
+    <script src="vendor/keen.js"></script>
+    <script src="sequences.js"></script>
+    <script>
+        // Hack to make this example display correctly in an iframe on bl.ocks.org
+        d3.select(self.frameElement).style("height", "700px");
+    </script>
+  </body>
+</html>
