@@ -1,0 +1,12 @@
+# The actual settings.yml file will contain your sensitive keys,
+# so make sure it's included in your .gitignore.
+
+# Input project
+project_id:'<your project id>'
+read_key: '<your read key>'
+write_key: '<your write key>'
+
+# Output project
+output_project_id: '<your project id>'
+output_read_key: '<your read key>'
+output_write_key: '<your write key>'
