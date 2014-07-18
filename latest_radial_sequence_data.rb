@@ -7,7 +7,6 @@ require 'json'
 require 'date'
 require 'time'
 require 'active_support/all' # for datetime calculation e.g. weeks.ago.at_beginning_of_week
-require 'simple_xlsx' # for outputting excel files
 require 'cgi' # for URL encoding
 require 'yaml' # for super secret keys in settings.yml
 require 'set'
