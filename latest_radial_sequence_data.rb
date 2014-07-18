@@ -38,16 +38,14 @@ keen_output = Keen::Client.new(
 
 puts 'hello world!'
 
-# NOTE: This script uses a last <number of> events, not a timeframe.
+# Extract from Keen IO a bunch of sessions IDs that we would like study
 completed_sessions = keen_project.extraction(
     'session_end',
     :target_property => 'session.id',
     :latest => NUM_LATEST_EVENTS,
 )
 
-puts completed_sessions.length
-session_set = Set.new completed_sessions
-puts session_set.length
+puts completed_sessions.length  # How many sessions are we looking at?
 
 # Let's define the maximum number of steps shown in a given flow.
 maxlength = 8
@@ -58,17 +56,19 @@ completed_sessions.each do |data|
 
     puts session_id = data['session']['id']
 
-    # session events
-    session_events = keen_project.extraction('session_end',
+    # Create a bucket to store all the session events for each session
+    # Start by filling it with screen_view events
+    session_events = keen_project.extraction('screen_views',
         :filters => [{
             :property_name => 'session.id',
             :operator => 'eq',
             :property_value => session_id,
         }],
-        :property_names => (['session.current.type', 'keen.timestamp']).to_json
+        # This screenviews collection happens to have a label for each screen called "session.current.type"
+        :property_names => (['session.current.type', 'keen.timestamp']).to_json 
     )
 
-    # payment
+    # Now go get other types of events, such as payment events
     payment = keen_project.extraction('payment',
         :filters => [{
             :property_name => 'session.id',
@@ -78,14 +78,16 @@ completed_sessions.each do |data|
         :property_names => (['event.amount_dollars', 'keen.timestamp']).to_json
     )
 
-    unless payment.empty?
+    # Add the payment events to the array of events. 
         payment.each do |m|
+            # To match the existing events we have in session_events, we're adding new "session.current.type" events with the label "money"
+            # We should probably re-write this script with something more simple and generic like "label" for each session event
             m['session'] = {'current' => {'type' => 'money'}}
         session_events << m
         end
     end
 
-    # plays
+    # Add plays type events to the set of session events
     plays = keen_project.extraction('play',
         :filters => [{
             :property_name => 'session.id',
@@ -97,6 +99,7 @@ completed_sessions.each do |data|
 
     unless plays.empty?
         plays.each do |p|
+            # Add the play events to our array using a label based on the "play_type" 
             p['session'] = {'current' => {'type' => p['event']['play_type']}}
         session_events << p
         end
@@ -109,6 +112,7 @@ completed_sessions.each do |data|
         e['keen']['timestamp_epoch'] = DateTime.parse(e['keen']['timestamp']).to_time.to_i
     end
 
+    # Sort the events by their timestamps so that we can see them in the order they happened
     sorted_events = session_events.sort_by { |hsh| hsh['keen']['timestamp_epoch']}
 
     flow = ''
