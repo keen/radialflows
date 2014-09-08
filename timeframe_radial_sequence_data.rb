@@ -49,7 +49,7 @@ puts unique_session_ids.length
 # Let's define the maximum number of steps shown in a given flow.
 maxlength = 8
 
-# Each flow starts with a 'session_start', but beyond that, the following events
+# Each flow starts with a `session_start`, but beyond that, the following events
 # can occur in varying orders (aka flows).
 unique_session_ids.each do |session_id|
 
@@ -61,7 +61,7 @@ unique_session_ids.each do |session_id|
             :operator => 'eq',
             :property_value => session_id,
         }],
-        :property_names => (['session.current.type', 'keen.timestamp']).to_json
+        :property_names => (['session_step', 'keen.timestamp']).to_json
     )
 
     # payment
@@ -78,7 +78,7 @@ unique_session_ids.each do |session_id|
 
     unless payment.empty?
         payment.each do |m|
-            m['session'] = {'current' => {'type' => 'money'}}
+            m['session_step'] = 'money'
         session_events << m
         end
     end
@@ -96,7 +96,7 @@ unique_session_ids.each do |session_id|
 
     unless plays.empty?
         plays.each do |p|
-            p['session'] = {'current' => {'type' => p['event']['play_type']}}
+            p['session_step'] = 'play'
         session_events << p
         end
     end
@@ -120,7 +120,7 @@ unique_session_ids.each do |session_id|
     sorted_events.each.with_index(0) do |event, i|
 
         # Add events to flows.
-        flow = flow + event['session']['current']['type'] + '-'
+        flow = flow + event['session_step'] + '-'
         count += 1
 
         # If the index corresponds to the length of `sorted_events`, we've reached
@@ -139,7 +139,7 @@ unique_session_ids.each do |session_id|
            break
         end
 
-        previous_event = event['session']['current']['type']
+        previous_event = event['session_step']
 
         i = i + 1
 
