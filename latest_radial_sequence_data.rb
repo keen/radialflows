@@ -50,23 +50,31 @@ puts completed_sessions.length
 # Now let's define the maximum number of steps shown in a given flow.
 maxlength = 8
 
-# Each flow starts with a 'session_start', but beyond that, the following events
-# can occur in varying orders (aka flows).
+# Create a bucket to store all the session events for each session.
+session_events = []
+
 completed_sessions.each do |data|
 
     puts session_id = data['session']['id']
 
-    # Create a bucket to store all the session events for each session
-    # Start by filling it with `screen_view` events.
-    session_events = keen_project.extraction('screen_views',
+    # Start by filling `session_events` with `screenviews` events.
+    screenviews = keen_project.extraction('screenviews',
         :filters => [{
             :property_name => 'session.id',
             :operator => 'eq',
             :property_value => session_id,
         }],
-        # This `screen_view` collection happens to have a label for each screen called `session_step`.
-        :property_names => (['session_step', 'keen.timestamp']).to_json
+        :property_names => (['view_type', 'keen.timestamp']).to_json
     )
+
+    # Add the screen view events to the array of events.
+    unless screenviews.empty?
+        screenviews.each do |v|
+            # Add `screenname` events with the label 'view'.
+            m['screenname'] = 'view'
+        session_events << v
+        end
+    end
 
     # Now go get other types of events, such as payment events.
     payment = keen_project.extraction('payment',
@@ -79,10 +87,10 @@ completed_sessions.each do |data|
     )
 
     # Add the payment events to the array of events.
+    unless payment.empty?
         payment.each do |m|
-            # To match the existing events we have in session_events, we're adding new
-            # `session_step` events with the label 'money'.
-            m['session_step'] = 'money'
+            # Add `screenname` events with the label 'money'.
+            m['screenname'] = 'money'
         session_events << m
         end
     end
@@ -99,8 +107,8 @@ completed_sessions.each do |data|
 
     unless plays.empty?
         plays.each do |p|
-            # Add `session_step` events with the label 'plays'.
-            p['session_step'] = 'play'
+            # Add `screenname` events with the label 'plays'.
+            p['screenname'] = 'play'
         session_events << p
         end
     end
@@ -125,7 +133,7 @@ completed_sessions.each do |data|
     sorted_events.each.with_index(0) do |event, i|
 
         # Add events to flows.
-        flow = flow + event['session_step'] + '-'
+        flow = flow + event['screenname'] + '-'
         count += 1
 
 
@@ -145,7 +153,7 @@ completed_sessions.each do |data|
            break
         end
 
-        previous_event = event['session_step']
+        previous_event = event['screenname']
 
     end
 
