@@ -62,12 +62,12 @@ unique_session_ids.each do |session_id|
             :operator => 'eq',
             :property_value => session_id,
         }],
-        :property_names => (['view_type', 'keen.timestamp']).to_json
+        :property_names => (['screenname', 'keen.timestamp']).to_json
     )
 
     unless screenviews.empty?
         screenviews.each do |v|
-            p['screenname'] = 'view'
+            v['session_step'] = v['screenname']
         session_events << v
         end
     end
@@ -86,7 +86,7 @@ unique_session_ids.each do |session_id|
 
     unless payment.empty?
         payment.each do |m|
-            m['screenname'] = 'money'
+            m['session_step'] = 'money'
         session_events << m
         end
     end
@@ -104,7 +104,7 @@ unique_session_ids.each do |session_id|
 
     unless plays.empty?
         plays.each do |p|
-            p['screenname'] = 'play'
+            p['session_step'] = 'play'
         session_events << p
         end
     end
@@ -128,7 +128,7 @@ unique_session_ids.each do |session_id|
     sorted_events.each.with_index(0) do |event, i|
 
         # Add events to flows.
-        flow = flow + event['screenname'] + '-'
+        flow = flow + event['session_step'] + '-'
         count += 1
 
         # If the index corresponds to the length of `sorted_events`, we've reached
@@ -147,7 +147,7 @@ unique_session_ids.each do |session_id|
            break
         end
 
-        previous_event = event['screenname']
+        previous_event = event['session_step']
 
         i = i + 1
 

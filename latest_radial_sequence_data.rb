@@ -64,14 +64,15 @@ completed_sessions.each do |data|
             :operator => 'eq',
             :property_value => session_id,
         }],
-        :property_names => (['view_type', 'keen.timestamp']).to_json
+        :property_names => (['screenname', 'keen.timestamp']).to_json
     )
 
     # Add the screen view events to the array of events.
     unless screenviews.empty?
         screenviews.each do |v|
-            # Add `screenname` events with the label 'view'.
-            m['screenname'] = 'view'
+            # Add `session_step` key with `screenname` value.
+            v['session_step'] = v['screenname']
+            # Add the event to our array.
         session_events << v
         end
     end
@@ -89,8 +90,8 @@ completed_sessions.each do |data|
     # Add the payment events to the array of events.
     unless payment.empty?
         payment.each do |m|
-            # Add `screenname` events with the label 'money'.
-            m['screenname'] = 'money'
+            # Add `session_step` events with the label 'money'.
+            m['session_step'] = 'money'
         session_events << m
         end
     end
@@ -107,8 +108,8 @@ completed_sessions.each do |data|
 
     unless plays.empty?
         plays.each do |p|
-            # Add `screenname` events with the label 'plays'.
-            p['screenname'] = 'play'
+            # Add `session_step` events with the label 'plays'.
+            p['session_step'] = 'play'
         session_events << p
         end
     end
@@ -133,7 +134,7 @@ completed_sessions.each do |data|
     sorted_events.each.with_index(0) do |event, i|
 
         # Add events to flows.
-        flow = flow + event['screenname'] + '-'
+        flow = flow + event['session_step'] + '-'
         count += 1
 
 
@@ -153,7 +154,7 @@ completed_sessions.each do |data|
            break
         end
 
-        previous_event = event['screenname']
+        previous_event = event['session_step']
 
     end
 
