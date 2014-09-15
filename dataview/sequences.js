@@ -5,7 +5,7 @@ var width = 850;
 var height = 600;
 var radius = Math.min(width, height) / 2;
 
-// Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+// Breadcrumb dimensions: width, height, spacing of tip/tail.
 var b = {
     w: 80, h: 30, s: 3, t: 10
 };
