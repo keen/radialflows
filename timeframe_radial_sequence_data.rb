@@ -49,20 +49,28 @@ puts unique_session_ids.length
 # Let's define the maximum number of steps shown in a given flow.
 maxlength = 8
 
-# Each flow starts with a 'session_start', but beyond that, the following events
-# can occur in varying orders (aka flows).
+# Create a bucket to store all the session events for each session.
+session_events = []
+
 unique_session_ids.each do |session_id|
 
-    # session events
-    session_events = keen_project.extraction('session_end',
+    # screenviews
+    screenviews = keen_project.extraction('session_end',
         :timeframe => TIMEFRAME,
         :filters => [{
             :property_name => 'session.id',
             :operator => 'eq',
             :property_value => session_id,
         }],
-        :property_names => (['session.current.type', 'keen.timestamp']).to_json
+        :property_names => (['screenname', 'keen.timestamp']).to_json
     )
+
+    unless screenviews.empty?
+        screenviews.each do |v|
+            v['session_step'] = v['screenname']
+        session_events << v
+        end
+    end
 
     # payment
     payment = keen_project.extraction('payment',
@@ -78,7 +86,7 @@ unique_session_ids.each do |session_id|
 
     unless payment.empty?
         payment.each do |m|
-            m['session'] = {'current' => {'type' => 'money'}}
+            m['session_step'] = 'money'
         session_events << m
         end
     end
@@ -96,7 +104,7 @@ unique_session_ids.each do |session_id|
 
     unless plays.empty?
         plays.each do |p|
-            p['session'] = {'current' => {'type' => p['event']['play_type']}}
+            p['session_step'] = 'play'
         session_events << p
         end
     end
@@ -120,7 +128,7 @@ unique_session_ids.each do |session_id|
     sorted_events.each.with_index(0) do |event, i|
 
         # Add events to flows.
-        flow = flow + event['session']['current']['type'] + '-'
+        flow = flow + event['session_step'] + '-'
         count += 1
 
         # If the index corresponds to the length of `sorted_events`, we've reached
@@ -139,7 +147,7 @@ unique_session_ids.each do |session_id|
            break
         end
 
-        previous_event = event['session']['current']['type']
+        previous_event = event['session_step']
 
         i = i + 1
 
