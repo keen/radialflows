@@ -49,20 +49,28 @@ puts unique_session_ids.length
 # Let's define the maximum number of steps shown in a given flow.
 maxlength = 8
 
-# Each flow starts with a `session_start`, but beyond that, the following events
-# can occur in varying orders (aka flows).
+# Create a bucket to store all the session events for each session.
+session_events = []
+
 unique_session_ids.each do |session_id|
 
-    # session events
-    session_events = keen_project.extraction('session_end',
+    # screenviews
+    screenviews = keen_project.extraction('session_end',
         :timeframe => TIMEFRAME,
         :filters => [{
             :property_name => 'session.id',
             :operator => 'eq',
             :property_value => session_id,
         }],
-        :property_names => (['session_step', 'keen.timestamp']).to_json
+        :property_names => (['screenname', 'keen.timestamp']).to_json
     )
+
+    unless screenviews.empty?
+        screenviews.each do |v|
+            v['session_step'] = v['screenname']
+        session_events << v
+        end
+    end
 
     # payment
     payment = keen_project.extraction('payment',
