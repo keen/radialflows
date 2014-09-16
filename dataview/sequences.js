@@ -5,7 +5,7 @@ var width = 850;
 var height = 600;
 var radius = Math.min(width, height) / 2;
 
-// Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+// Breadcrumb dimensions: width, height, spacing of tip/tail.
 var b = {
     w: 80, h: 30, s: 3, t: 10
 };
@@ -290,15 +290,15 @@ function toggleLegend() {
     }
 }
 
-// Take a 2-column CSV and transform it into a hierarchical structure suitable
-// for a partition layout. The first column is a sequence of step names, from
-// root to leaf, separated by hyphens. The second column is a count of how
-// often that sequence occurred.
-function buildHierarchy(csv) {
+// Take a collection of event data (`rows`) and transform it into a hierarchical structure
+// suitable for a partition layout. The first item in each nested array is a
+// sequence of step names, from root to leaf, separated by hyphens. The second item
+// is a count of how often that sequence occurred.
+function buildHierarchy(rows) {
     var root = {"name": "root", "children": []};
-    for (var i = 0; i < csv.length; i++) {
-        var sequence = csv[i][0];
-        var size = +csv[i][1];
+    for (var i = 0; i < rows.length; i++) {
+        var sequence = rows[i][0];
+        var size = +rows[i][1];
         if (isNaN(size)) { // e.g. if this is a header row
             continue;
         }
