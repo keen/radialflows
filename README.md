@@ -11,7 +11,7 @@ money - song - play - song - play - portal - end
 
 ##How it works
 
-`latest_radial_sequence_data.rb` reads data from a project in Keen IO, sorts the data into user flows and publishes a new event collection to a project in Keen IO.
+`latest_radial_sequence_data.rb` reads data from a project in [Keen IO](https://keen.io), sorts the data into user flows and publishes a new event collection to a project in Keen IO.
 
 1. Open `settings.yml` and specify the project keys, name of the event collection you're saving to Keen IO, `collection_name`, and the number of events you'd like to analyze, `num_latest_events`.
 2. When you're ready to create a new event collection for user flow data, run this script in **terminal** `ruby latest_radial_sequence_data.rb`.
